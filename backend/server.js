@@ -16,7 +16,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomsRoutes);
 app.use("/api/reservations", reservationsRoutes);
 
-// seed rooms (au démarrage si vide)
 async function seedRooms() {
     const db = getDB();
     const rooms = db.collection("rooms");
@@ -33,17 +32,19 @@ async function seedRooms() {
 }
 
 async function start() {
-    try {
-        await connectDB();
-        console.log("Connecté à MongoDB (easybooking_db)");
-        await seedRooms();
-
-        const PORT = 4000;
-        app.listen(PORT, () => console.log(`API sur http://localhost:${PORT}`));
-    } catch (e) {
-        console.error("Erreur démarrage", e);
-        process.exit(1);
-    }
+    await connectDB();
+    await seedRooms();
+    const PORT = 4000;
+    app.listen(PORT, () => console.log(` API sur http://localhost:${PORT}`));
 }
 
-start();
+//export pour Supertest
+module.exports = app;
+
+//  lance seulement si exécuté directement
+if (require.main === module) {
+    start().catch((e) => {
+        console.error(" Erreur démarrage", e);
+        process.exit(1);
+    });
+}
